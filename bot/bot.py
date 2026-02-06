@@ -58,7 +58,7 @@ def build_channels_keyboard(channels: list[Channel]) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def ensure_user(message: Message, referrer_telegram_id: int | None) -> User:
+async def ensure_user(message: Message, referrer_telegram_id: int | None) -> dict[str, int | bool]:
     with SessionLocal() as db:
         user = db.execute(select(User).where(User.telegram_id == message.from_user.id)).scalar_one_or_none()
         if not user:
@@ -107,12 +107,12 @@ async def ensure_user(message: Message, referrer_telegram_id: int | None) -> Use
                                 meta=json.dumps({"referral_id": user.id}),
                             )
                         )
-                        db.commit()
+            db.commit()
         else:
             user.username = message.from_user.username
             user.last_login_at = datetime.utcnow()
             db.commit()
-        return user
+        return {"id": user.id, "banned": user.banned}
 
 
 @dp.message(Command("start"))
@@ -129,8 +129,8 @@ async def cmd_start(message: Message) -> None:
         except ValueError:
             referrer_id = None
 
-    user = await ensure_user(message, referrer_id)
-    if user.banned:
+    user_info = await ensure_user(message, referrer_id)
+    if user_info["banned"]:
         await message.answer("Ваш акаунт заблоковано.")
         return
 
