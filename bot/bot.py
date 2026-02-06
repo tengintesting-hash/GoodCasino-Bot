@@ -118,7 +118,11 @@ async def ensure_user(message: Message, referrer_telegram_id: int | None) -> Use
 
 @dp.message(Command("start"))
 async def cmd_start(message: Message) -> None:
-    args = message.get_args()
+    args = ""
+    if message.text:
+        parts = message.text.split(maxsplit=1)
+        if len(parts) > 1:
+            args = parts[1]
     referrer_id = None
     if args and args.startswith("ref_"):
         try:
