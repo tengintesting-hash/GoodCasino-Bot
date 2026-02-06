@@ -1,0 +1,42 @@
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    volumes:
+      - db_data:/data
+    restart: unless-stopped
+
+  bot:
+    build: ./bot
+    env_file: .env
+    volumes:
+      - db_data:/data
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    env_file: .env
+    environment:
+      - VITE_API_BASE=/api
+      - VITE_BOT_USERNAME=${BOT_USERNAME}
+    volumes:
+      - frontend_dist:/frontend_dist
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - frontend_dist:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  frontend_dist:
