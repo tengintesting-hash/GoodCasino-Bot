@@ -9,9 +9,7 @@ from aiogram.types import (
     ChatJoinRequest,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    KeyboardButton,
     Message,
-    ReplyKeyboardMarkup,
     WebAppInfo,
 )
 from sqlalchemy import select
@@ -28,10 +26,11 @@ bot = Bot(token=settings.bot_token)
 dp = Dispatcher()
 
 
-def build_webapp_keyboard() -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="🎮 Відкрити WebApp", web_app=WebAppInfo(url=settings.webapp_url))]],
-        resize_keyboard=True,
+def build_webapp_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🎮 Відкрити WebApp", web_app=WebAppInfo(url=settings.webapp_url))]
+        ]
     )
 
 
@@ -147,10 +146,7 @@ async def cmd_start(message: Message) -> None:
         "Вітаємо! Натисніть кнопку нижче, щоб відкрити WebApp.",
         reply_markup=build_webapp_keyboard(),
     )
-    await message.answer(
-        "Ваше реферальне посилання доступне командою /ref.",
-        reply_markup=build_webapp_keyboard(),
-    )
+    await message.answer("Ваше реферальне посилання доступне командою /ref.")
 
 
 @dp.message(Command("ref"))

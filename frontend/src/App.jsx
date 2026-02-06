@@ -29,9 +29,13 @@ export default function App() {
   useEffect(() => {
     async function init() {
       try {
+        if (window.Telegram?.WebApp) {
+          window.Telegram.WebApp.ready()
+          window.Telegram.WebApp.expand()
+        }
         const initData = window.Telegram?.WebApp?.initData || ''
         if (!initData) {
-          setError('Не вдалося отримати дані Telegram WebApp.')
+          setError('Не вдалося отримати дані Telegram WebApp. Відкрийте застосунок через Telegram.')
           setLoading(false)
           return
         }
