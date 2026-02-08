@@ -1,6 +1,7 @@
 import asyncio
 import json
 from datetime import datetime
+from typing import Optional
 
 import aiohttp
 from aiohttp.resolver import AsyncResolver
@@ -24,10 +25,7 @@ BROADCAST_DELAY = 0.05
 BROADCAST_POLL_INTERVAL = 5
 
 
-resolver = AsyncResolver(nameservers=["1.1.1.1", "8.8.8.8"])
-connector = aiohttp.TCPConnector(resolver=resolver)
-session = aiohttp.ClientSession(connector=connector)
-bot = Bot(token=settings.bot_token, session=session)
+bot: Optional[Bot] = None
 dp = Dispatcher()
 
 
@@ -40,6 +38,8 @@ def build_webapp_keyboard() -> InlineKeyboardMarkup:
 
 
 async def check_required_channels(user_id: int) -> list[Channel]:
+    if not bot:
+        return []
     with SessionLocal() as db:
         channels = db.execute(select(Channel).where(Channel.is_required.is_(True))).scalars().all()
     missing = []
@@ -122,6 +122,9 @@ async def ensure_user(message: Message, referrer_telegram_id: int | None) -> dic
 
 @dp.message(Command("start"))
 async def cmd_start(message: Message) -> None:
+    if not bot:
+        await message.answer("Технічна помилка. Спробуйте пізніше.")
+        return
     args = ""
     if message.text:
         parts = message.text.split(maxsplit=1)
@@ -156,6 +159,9 @@ async def cmd_start(message: Message) -> None:
 
 @dp.message(Command("ref"))
 async def cmd_ref(message: Message) -> None:
+    if not bot:
+        await message.answer("Технічна помилка. Спробуйте пізніше.")
+        return
     with SessionLocal() as db:
         user = db.execute(select(User).where(User.telegram_id == message.from_user.id)).scalar_one_or_none()
         if not user:
@@ -170,6 +176,9 @@ async def cmd_ref(message: Message) -> None:
 
 @dp.callback_query(F.data == "recheck_subs")
 async def recheck_subs(callback: CallbackQuery) -> None:
+    if not bot:
+        await callback.answer("Технічна помилка. Спробуйте пізніше.", show_alert=True)
+        return
     missing = await check_required_channels(callback.from_user.id)
     if missing:
         await callback.message.answer(
@@ -186,6 +195,8 @@ async def recheck_subs(callback: CallbackQuery) -> None:
 
 @dp.chat_join_request()
 async def join_request_handler(request: ChatJoinRequest) -> None:
+    if not bot:
+        return
     await bot.approve_chat_join_request(chat_id=request.chat.id, user_id=request.from_user.id)
     await bot.send_message(request.from_user.id, "✅ Заявку прийнято. Дякуємо за підписку!")
 
@@ -232,11 +243,16 @@ async def broadcast_worker() -> None:
 
 async def main() -> None:
     Base.metadata.create_all(bind=engine)
+    global bot
+    resolver = AsyncResolver(nameservers=["1.1.1.1", "8.8.8.8"])
+    connector = aiohttp.TCPConnector(resolver=resolver)
+    session = aiohttp.ClientSession(connector=connector)
+    bot = Bot(token=settings.bot_token, session=session)
     asyncio.create_task(broadcast_worker())
     try:
         await dp.start_polling(bot)
     finally:
-        await session.close()
+        await bot.session.close()
 
 
 if __name__ == "__main__":
