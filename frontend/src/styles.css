@@ -1,0 +1,135 @@
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #f4f4f6;
+  background-color: #10121a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1d2230;
+  color: #fff;
+}
+
+.tab.active {
+  background: #7c5cff;
+}
+
+.panel {
+  background: #161a26;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.primary {
+  background: #7c5cff;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.offers {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  background: #1d2230;
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.link {
+  color: #7c5cff;
+  text-decoration: none;
+}
+
+.error {
+  background: #ff4d4f;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.status {
+  background: #1f7a4c;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.referral-box {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.referral-box input,
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #2a3040;
+  background: #0f121b;
+  color: #fff;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #161a26;
+  padding: 20px;
+  border-radius: 12px;
+  width: min(90%, 420px);
+  display: grid;
+  gap: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
