@@ -3,8 +3,6 @@ import json
 from datetime import datetime
 from typing import Optional
 
-import aiohttp
-from aiohttp.resolver import AsyncResolver
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
@@ -245,9 +243,7 @@ async def broadcast_worker() -> None:
 async def main() -> None:
     Base.metadata.create_all(bind=engine)
     global bot
-    resolver = AsyncResolver(nameservers=["1.1.1.1", "8.8.8.8"])
-    connector = aiohttp.TCPConnector(resolver=resolver)
-    session = AiohttpSession(connector=connector)
+    session = AiohttpSession()
     bot = Bot(token=settings.bot_token, session=session)
     asyncio.create_task(broadcast_worker())
     try:
