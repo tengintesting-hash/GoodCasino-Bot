@@ -5,6 +5,7 @@ from typing import Optional
 
 import aiohttp
 from aiohttp.resolver import AsyncResolver
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.types import (
@@ -246,13 +247,13 @@ async def main() -> None:
     global bot
     resolver = AsyncResolver(nameservers=["1.1.1.1", "8.8.8.8"])
     connector = aiohttp.TCPConnector(resolver=resolver)
-    session = aiohttp.ClientSession(connector=connector)
+    session = AiohttpSession(connector=connector)
     bot = Bot(token=settings.bot_token, session=session)
     asyncio.create_task(broadcast_worker())
     try:
         await dp.start_polling(bot)
     finally:
-        await bot.session.close()
+        await session.close()
 
 
 if __name__ == "__main__":
