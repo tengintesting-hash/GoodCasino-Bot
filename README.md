@@ -24,7 +24,9 @@ curl http://localhost/health
 
 ## Продакшен нотатки
 
-- Вкажіть `DOMAIN` та `CERTBOT_EMAIL` у `.env` якщо плануєте додати certbot (шаблон залишено для майбутніх сценаріїв).
+- Nginx слухає 80/443. Для Telegram WebApp потрібен валідний HTTPS.
+- Сертифікати очікуються у `/etc/letsencrypt/live/blacktime.uno/` і монтуються в контейнер Nginx як `/etc/letsencrypt`.
+- Якщо ваш домен інший — оновіть `server_name` та шляхи сертифікатів у `nginx/nginx.conf`.
 - Всі сервіси працюють через Nginx. Статичний фронтенд доступний за `/`, API за `/api/*`, адмінка за `/admin/*`.
 - База даних SQLite зберігається у volume `db_data` за шляхом `/data/database.db`.
 
