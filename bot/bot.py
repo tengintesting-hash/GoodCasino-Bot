@@ -2,6 +2,8 @@ import asyncio
 import json
 from datetime import datetime
 
+import aiohttp
+from aiohttp.resolver import AsyncResolver
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.types import (
@@ -22,7 +24,10 @@ BROADCAST_DELAY = 0.05
 BROADCAST_POLL_INTERVAL = 5
 
 
-bot = Bot(token=settings.bot_token)
+resolver = AsyncResolver(nameservers=["1.1.1.1", "8.8.8.8"])
+connector = aiohttp.TCPConnector(resolver=resolver)
+session = aiohttp.ClientSession(connector=connector)
+bot = Bot(token=settings.bot_token, session=session)
 dp = Dispatcher()
 
 
@@ -228,7 +233,10 @@ async def broadcast_worker() -> None:
 async def main() -> None:
     Base.metadata.create_all(bind=engine)
     asyncio.create_task(broadcast_worker())
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await session.close()
 
 
 if __name__ == "__main__":
